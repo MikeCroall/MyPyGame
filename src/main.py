@@ -65,6 +65,8 @@ def main():
         bananas = [b for b in bananas if b not in rem]
 
         text = font.render("{} frames until banana".format(frames_until_spawn), 1, (10, 10, 10))
+        textpos = text.get_rect()
+        textpos.centerx = background.get_rect().centerx
         background.fill((250, 250, 250))
         background.blit(text, textpos)
         screen.blit(background, (0, 0))
