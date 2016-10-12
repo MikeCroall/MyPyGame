@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 
 
 class Banana:
@@ -17,11 +17,11 @@ class Banana:
     def get_speed(self):
         return self.speed
 
-    def reverse_x_speed(self):
-        self.speed[0] *= -1
+    def ensure_travel_right(self):
+        self.speed[0] = 1
 
-    def reverse_y_speed(self):
-        self.speed[1] *= -1
+    def ensure_travel_left(self):
+        self.speed[0] = -1
 
     def set_center_pos(self, x, y):
         self.rect.centerx = x
