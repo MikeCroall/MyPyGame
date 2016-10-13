@@ -89,7 +89,7 @@ def main():
             bananas = [b for b in bananas if b not in rem]
 
             # update labels ready for drawing
-            labels[0].set_text("{} frames until banana".format(frames_until_spawn))
+            labels[0].set_text("{} frames until banana (every {} frames)".format(frames_until_spawn, spawn_rate))
             labels[1].set_text("{} bananas dodged".format(bananas_dodged))
             labels[2].set_text("{} lives".format(lives))
 
@@ -135,8 +135,8 @@ def main():
     bdl_rect.centerx = background.get_rect().centerx
     eel_rect.centerx = background.get_rect().centerx
     gol_rect.bottom = background.get_rect().centery - gol_rect.height - 10
-    bdl_rect.top = background.get_rect().centery + bdl_rect.height + 10
-    eel_rect.centery = background.get_rect().centery
+    bdl_rect.centery = background.get_rect().centery
+    eel_rect.top = background.get_rect().centery + gol_rect.height + 10
 
     screen.blit(game_over_label, gol_rect)
     screen.blit(bananas_dodged_label, bdl_rect)
@@ -152,5 +152,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt as ex:
+        print("Please exit using the X button, or Esc on the death screen next time!")
     print("See you again soon!")
