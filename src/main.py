@@ -80,12 +80,11 @@ def main():
                 if b.get_rect().colliderect(player_1.get_rect()):
                     rem.append(b)
                     lives -= 1
-                    if lives <= 0:
-                        # todo you lose
-                        pass
                 elif b.get_rect().top > height:  # if did not collide with player, check if ready for locational despawn
                     rem.append(b)
                     bananas_dodged += 1
+                    if spawn_rate > 20:
+                        spawn_rate -= 2
 
             bananas = [b for b in bananas if b not in rem]
 
@@ -124,7 +123,33 @@ def main():
             time.sleep(0.2)  # paused
 
     print("Game over!\n{} bananas dodged successfully".format(bananas_dodged))
-    # todo display game over label
+
+    game_over_label = pygame.font.Font(None, 40).render("Game over!", 1, (10, 10, 10))
+    bananas_dodged_label = pygame.font.Font(None, 36).render("You dodged {} bananas!".format(bananas_dodged), 1,
+                                                             (10, 10, 10))
+    escape_exit_label = pygame.font.Font(None, 25).render("Press Esc to exit", 1, (10, 10, 10))
+    gol_rect = game_over_label.get_rect()
+    bdl_rect = bananas_dodged_label.get_rect()
+    eel_rect = escape_exit_label.get_rect()
+    gol_rect.centerx = background.get_rect().centerx
+    bdl_rect.centerx = background.get_rect().centerx
+    eel_rect.centerx = background.get_rect().centerx
+    gol_rect.bottom = background.get_rect().centery - gol_rect.height - 10
+    bdl_rect.top = background.get_rect().centery + bdl_rect.height + 10
+    eel_rect.centery = background.get_rect().centery
+
+    screen.blit(game_over_label, gol_rect)
+    screen.blit(bananas_dodged_label, bdl_rect)
+    screen.blit(escape_exit_label, eel_rect)
+
+    pygame.display.flip()
+
+    escaped = False
+    while not escaped:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                escaped = (event.key == pygame.K_ESCAPE)
+
 
 if __name__ == "__main__":
     main()
