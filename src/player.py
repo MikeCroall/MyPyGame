@@ -10,6 +10,7 @@ class Player:
         self.position_middle_bottom(screen_bounds)
         self.balloon_bob_height = 0
         self.balloon_bob_mode = "down"
+        self.travelling = "right"
 
     def get_img(self):
         return self.img
@@ -21,9 +22,15 @@ class Player:
         return self.speed
 
     def go_left(self):
+        if self.travelling == "right":
+            self.img = pygame.transform.flip(self.img, True, False)
+        self.travelling = "left"
         self.rect = self.rect.move([-1 * math.fabs(self.speed[0]), 0])
 
     def go_right(self):
+        if self.travelling == "left":
+            self.img = pygame.transform.flip(self.img, True, False)
+        self.travelling = "right"
         self.rect = self.rect.move([math.fabs(self.speed[0]), 0])
 
     def position_middle_bottom(self, screen_bounds):
