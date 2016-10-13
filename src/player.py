@@ -35,18 +35,18 @@ class Player:
 
     def position_middle_bottom(self, screen_bounds):
         width, height = screen_bounds
-        self.rect.bottom = height - 10
+        self.rect.bottom = height - 12
         self.usual_bottom = self.rect.bottom
         self.rect.centerx = int(width / 2)
 
     def balloon_bob(self):
         if self.balloon_bob_mode == "down":
-            if self.balloon_bob_height < 5:
+            if self.balloon_bob_height < 10:
                 self.balloon_bob_height += 1
             else:
                 self.balloon_bob_mode = "up"
         else:
-            if self.balloon_bob_height > -5:
+            if self.balloon_bob_height > -10:
                 self.balloon_bob_height -= 1
             else:
                 self.balloon_bob_mode = "down"

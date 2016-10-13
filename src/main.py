@@ -16,9 +16,9 @@ def main():
     size = width, height = 960, 540
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Banana dodge v2')
-    spawn_rate, frames_until_spawn = 200, 1
+    spawn_rate, frames_until_spawn = 100, 1
     bananas_dodged, lives = 0, 3
-    bob_rate, frames_until_bob = 10, 10
+    bob_rate, frames_until_bob = 7, 7
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -43,7 +43,7 @@ def main():
         speed = [random.choice([0, 0, 0, -1, 1]), 2]
         bananas.append(Banana(img, int(random.random() * width), 0, speed))
 
-    while True:
+    while lives > 0:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -106,6 +106,9 @@ def main():
             # draw background on screen then draw on screen in front
             screen.blit(background, (0, 0))
             for b in bananas:
+                # animate spinning
+                if frames_until_bob <= 1:
+                    b.rotate_tick()
                 screen.blit(b.get_img(), b.get_rect())
 
             # animate bobbing
@@ -118,10 +121,10 @@ def main():
             pygame.display.flip()
             time.sleep(0.01)
         else:
-            # paused
-            time.sleep(0.2)
-            print("Still paused")
+            time.sleep(0.2)  # paused
 
+    print("Game over!\n{} bananas dodged successfully".format(bananas_dodged))
+    # todo display game over label
 
 if __name__ == "__main__":
     main()

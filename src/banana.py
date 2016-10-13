@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, random
 
 
 class Banana:
@@ -7,6 +7,7 @@ class Banana:
         self.rect = img.get_rect()
         self.set_center_pos(x, y)
         self.speed = speed
+        self.rotate_direction = random.choice([1, -1])
 
     def get_img(self):
         return self.img
@@ -30,6 +31,10 @@ class Banana:
     def move_at_speed(self):
         self.rect = self.rect.move(self.speed)
         return self.rect
+
+    def rotate_tick(self):
+        self.img = pygame.transform.rotate(self.img, self.rotate_direction * 90)  # not 90n causes bad distortion
+        self.rect = self.img.get_rect(center=self.rect.center)
 
     def __str__(self):
         return "{} - {}".format(self.rect, self.speed)
