@@ -6,7 +6,10 @@ class Player:
         self.img = img
         self.rect = img.get_rect()
         self.speed = speed
+        self.usual_bottom = -1
         self.position_middle_bottom(screen_bounds)
+        self.balloon_bob_height = 0
+        self.balloon_bob_mode = "down"
 
     def get_img(self):
         return self.img
@@ -25,5 +28,19 @@ class Player:
 
     def position_middle_bottom(self, screen_bounds):
         width, height = screen_bounds
-        self.rect.bottom = height - 5
+        self.rect.bottom = height - 10
+        self.usual_bottom = self.rect.bottom
         self.rect.centerx = int(width / 2)
+
+    def balloon_bob(self):
+        if self.balloon_bob_mode == "down":
+            if self.balloon_bob_height < 5:
+                self.balloon_bob_height += 1
+            else:
+                self.balloon_bob_mode = "up"
+        else:
+            if self.balloon_bob_height > -5:
+                self.balloon_bob_height -= 1
+            else:
+                self.balloon_bob_mode = "down"
+        self.rect.bottom = self.usual_bottom + self.balloon_bob_height

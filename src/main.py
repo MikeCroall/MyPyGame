@@ -17,6 +17,7 @@ def main():
     pygame.display.set_caption('Banana dodge v2')
     spawn_rate, frames_until_spawn = 200, 1
     bananas_dodged, lives = 0, 3
+    bob_rate, frames_until_bob = 10, 10
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -94,6 +95,12 @@ def main():
         screen.blit(background, (0, 0))
         for b in bananas:
             screen.blit(b.get_img(), b.get_rect())
+
+        # animate bobbing
+        frames_until_bob -= 1
+        if frames_until_bob <= 0:
+            player_1.balloon_bob()
+            frames_until_bob = bob_rate
         screen.blit(player_1.get_img(), player_1.get_rect())
 
         pygame.display.flip()
