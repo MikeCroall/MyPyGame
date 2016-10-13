@@ -5,6 +5,7 @@ def main():
     except ImportError as ex:
         print("Please install pygame - it is a required module!")
         return
+    from player import Player
     from banana import Banana
     from label import Label
 
@@ -21,11 +22,14 @@ def main():
     background = background.convert()
     background.fill((250, 250, 250))
 
+    player_1 = Player(pygame.image.load("../img/nyan-balloon.png"), [2, 0], size)
+
     labels = [
         Label("0 frames until banana"),
         Label("0 bananas dodged"),
         Label("3 lives")
-    ]
+    ]  # note: NOT a dictionary, to maintain ordering
+
     bananas = []
 
     def spawn_banana():
@@ -42,14 +46,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            elif event.type == pygame.K_LEFT:
-                print("Move left")
-            elif event.type == pygame.K_RIGHT:
-                print("Move right")
-            #elif event.type == pygame.MOUSEBUTTONDOWN:
-             #   clicked_x, clicked_y = event.pos
-              #  if banana_rect.collidepoint(clicked_x, clicked_y):
-               #     print("Banana down!")
+
+        # player movement
+        keys = pygame.key.get_pressed()  # checking pressed keys
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            if player_1.get_rect().left > 0:
+                player_1.go_left()
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            if player_1.get_rect().right < width:
+                player_1.go_right()
 
         rem = []
         for b in bananas:
@@ -59,14 +64,15 @@ def main():
             elif b.get_rect().right > width:
                 b.ensure_travel_left()
 
-            if False: # todo change to if collides with player
-                # todo despawn banana, decrease and check lives
-                pass
+            if b.get_rect().colliderect(player_1.get_rect()):
+                rem.append(b)
+                lives -= 1
+                if lives <= 0:
+                    # todo you lose
+                    pass
             elif b.get_rect().top > height: # if did not collide with player, check if ready for locational despawn
                 rem.append(b)
                 bananas_dodged += 1
-
-            # todo test for collision with player
 
         bananas = [b for b in bananas if b not in rem]
 
@@ -88,6 +94,7 @@ def main():
         screen.blit(background, (0, 0))
         for b in bananas:
             screen.blit(b.get_img(), b.get_rect())
+        screen.blit(player_1.get_img(), player_1.get_rect())
 
         pygame.display.flip()
         time.sleep(0.01)
