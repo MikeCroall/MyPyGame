@@ -42,6 +42,10 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.K_LEFT:
+                print("Move left")
+            elif event.type == pygame.K_RIGHT:
+                print("Move right")
             #elif event.type == pygame.MOUSEBUTTONDOWN:
              #   clicked_x, clicked_y = event.pos
               #  if banana_rect.collidepoint(clicked_x, clicked_y):
@@ -54,8 +58,12 @@ def main():
                 b.ensure_travel_right()
             elif b.get_rect().right > width:
                 b.ensure_travel_left()
-            if b.get_rect().top > height:
-                rem.append(b)  # despawn because reached bottom
+
+            if False: # todo change to if collides with player
+                # todo despawn banana, decrease and check lives
+                pass
+            elif b.get_rect().top > height: # if did not collide with player, check if ready for locational despawn
+                rem.append(b)
                 bananas_dodged += 1
 
             # todo test for collision with player
