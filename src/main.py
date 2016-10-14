@@ -111,6 +111,9 @@ def main():
                 else:
                     ind = b.get_rect().collidelist([x.get_rect() for x in projectiles])
                     if ind != -1:
+                        if b.get_gives_life():
+                            if lives < 10:
+                                lives += 1
                         rem_b.append(b)
                         del projectiles[ind]
                     elif b.get_rect().top > height:  # if didn't collide with player, check for locational despawn
