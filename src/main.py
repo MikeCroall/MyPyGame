@@ -23,10 +23,11 @@ def main():
     bob_rate, frames_until_bob = 7, 7
     shooting_cool_down, frames_until_can_shoot = 75, 30
     projectile_speed = [0, -4 * int(height / 480)]
+    background_colour = (250, 250, 250)
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
-    background.fill((250, 250, 250))
+    background.fill(background_colour)
 
     player_1 = Player(pygame.image.load("../img/nyan-balloon.png"), [int(width / 480), 0], size)
 
@@ -106,14 +107,17 @@ def main():
                     if b.get_gives_life():
                         if lives < 10:
                             lives += 1
+                            background_colour = (0, 254, 254)
                     else:
                         lives -= 1
+                        background_colour = (250, 0, 0)
                 else:
                     ind = b.get_rect().collidelist([x.get_rect() for x in projectiles])
                     if ind != -1:
                         if b.get_gives_life():
                             if lives < 10:
                                 lives += 1
+                                background_colour = (0, 254, 254)
                         else:
                             bananas_shot += 1  # life-bananas don't count towards this
                         rem_b.append(b)
@@ -134,7 +138,23 @@ def main():
             labels[4].set_text("{} lives".format(lives))
 
             # draw on background
-            background.fill((250, 250, 250))
+            background_recover_rate = 2
+            if background_colour != (250, 250, 250):
+                r, g, b = background_colour
+                if r < 250:
+                    r += background_recover_rate
+                elif r > 250:
+                    r -= background_recover_rate
+                if g < 250:
+                    g += background_recover_rate
+                elif g > 250:
+                    g -= background_recover_rate
+                if b < 250:
+                    b += background_recover_rate
+                elif b > 250:
+                    b -= background_recover_rate
+                background_colour = (r, g, b)
+            background.fill(background_colour)
             top = 8
             for l in labels:
                 l.get_rect().top = top
