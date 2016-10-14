@@ -14,3 +14,9 @@ A python built re-imagining of [Banana Dodge by Me](https://scratch.mit.edu/proj
 * `D` or `Right Arrow` - move right
 * `Spacebar` - shoot
 * `Esc` - pause, or exit from death screen
+
+##### Bananas
+![alt text](https://raw.githubusercontent.com/MikeCroall/banana-dodge/master/img/banana.bmp "Yellow Banana") Yellow - touching these loses a life, can be shot and destroyed
+
+![alt text](https://raw.githubusercontent.com/MikeCroall/banana-dodge/master/img/life-banana.bmp "Cyan Banana") Cyan - touching these gives life! Can also be shot and destroyed
+
