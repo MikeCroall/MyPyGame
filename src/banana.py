@@ -3,7 +3,8 @@ import random
 
 
 class Banana:
-    def __init__(self, img, x, y, speed):
+    def __init__(self, gives_life, img, x, y, speed):
+        self.gives_life = gives_life
         self.img = img
         self.original_img = img
         self.rect = img.get_rect()
@@ -20,6 +21,9 @@ class Banana:
 
     def get_speed(self):
         return self.speed
+
+    def get_gives_life(self):
+        return self.gives_life
 
     def ensure_travel_right(self):
         self.speed[0] = 1

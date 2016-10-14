@@ -46,9 +46,13 @@ def main():
     projectiles = []
 
     def spawn_banana():
-        img = pygame.image.load("../img/banana.bmp")
         speed = [random.choice([0, 0, 0, 0, 0, -1, -1, 1, 1, -2, 2]), 2]
-        bananas.append(Banana(img, int(random.random() * width), 0, speed))
+        if random.random() < 0.05:
+            img = pygame.image.load("../img/life-banana.bmp")
+            bananas.append(Banana(True, img, int(random.random() * width), 0, speed))
+        else:
+            img = pygame.image.load("../img/banana.bmp")
+            bananas.append(Banana(False, img, int(random.random() * width), 0, speed))
 
     def shoot_projectile_from_player(player_1):
         img = pygame.image.load("../img/projectile.png")
@@ -99,7 +103,11 @@ def main():
 
                 if b.get_rect().colliderect(player_1.get_rect()):
                     rem_b.append(b)
-                    lives -= 1
+                    if b.get_gives_life():
+                        if lives < 10:
+                            lives += 1
+                    else:
+                        lives -= 1
                 else:
                     ind = b.get_rect().collidelist([x.get_rect() for x in projectiles])
                     if ind != -1:
@@ -184,5 +192,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt as ex:
         print("Please exit using the X button, or Esc on the death screen next time!")
     print("See you again soon!")
-
-# todo blue bananas that give a life
