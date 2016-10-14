@@ -50,7 +50,7 @@ def main():
         bananas.append(Banana(img, int(random.random() * width), 0, speed))
 
     def shoot_projectile_from_player(player_1):
-        img = pygame.image.load("../img/banana.bmp")  # todo replace sprite
+        img = pygame.image.load("../img/projectile.png")  # todo replace sprite
         projectiles.append(Projectile(img, projectile_speed, player_1.get_rect()))
 
     while lives > 0:
