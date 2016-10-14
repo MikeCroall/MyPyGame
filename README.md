@@ -12,4 +12,5 @@ A python built re-imagining of [Banana Dodge by Me](https://scratch.mit.edu/proj
 #### Controls
 * `A` or `Left Arrow` - move left
 * `D` or `Right Arrow` - move right
+* `Spacebar` - shoot
 * `Esc` - pause, or exit from death screen
