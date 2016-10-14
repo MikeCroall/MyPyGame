@@ -8,6 +8,7 @@ def main():
     from player import Player
     from banana import Banana
     from label import Label
+    from projectile import Projectile
 
     print("Excellent - pygame is installed and imported!")
     pygame.init()
@@ -20,7 +21,8 @@ def main():
     spawn_rate, frames_until_spawn = 100, 1
     bananas_dodged, lives = 0, 3
     bob_rate, frames_until_bob = 7, 7
-    shooting_cool_down, frames_until_can_shoot = 30, 30
+    shooting_cool_down, frames_until_can_shoot = 80, 30
+    projectile_speed = [0, -2 * int(height / 480)]
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -30,6 +32,7 @@ def main():
 
     labels = [
         Label("0 frames until banana"),
+        Label("0 frames until shooting is available"),
         Label("0 bananas dodged"),
         Label("3 lives")
     ]  # note: NOT a dictionary, to maintain ordering
@@ -39,11 +42,16 @@ def main():
     pause_label_rect.centery = background.get_rect().centery
 
     bananas = []
+    projectiles = []
 
     def spawn_banana():
         img = pygame.image.load("../img/banana.bmp")
         speed = [random.choice([0, 0, 0, -1, 1]), 2]
         bananas.append(Banana(img, int(random.random() * width), 0, speed))
+
+    def shoot_projectile_from_player(player_1):
+        img = pygame.image.load("../img/banana.bmp")  # todo replace sprite
+        projectiles.append(Projectile(img, projectile_speed, player_1.get_rect()))
 
     while lives > 0:
         for event in pygame.event.get():
@@ -58,7 +66,8 @@ def main():
 
         if not paused:
             frames_until_spawn -= 1
-            if frames_until_can_shoot > 0: frames_until_can_shoot -= 1
+            if frames_until_can_shoot > 0:
+                frames_until_can_shoot -= 1
             if frames_until_spawn <= 0:
                 spawn_banana()
                 frames_until_spawn = spawn_rate
@@ -74,10 +83,12 @@ def main():
             if keys[pygame.K_SPACE]:
                 if frames_until_can_shoot <= 0:
                     frames_until_can_shoot = shooting_cool_down
-                    print("Player shooting")
-                    pass  # todo shoot projectile up from player
+                    shoot_projectile_from_player(player_1)
 
-            rem = []
+            for p in projectiles:
+                p.move_at_speed()
+
+            rem_b = []
             for b in bananas:
                 b.move_at_speed()
                 if b.get_rect().left < 0:  # separated to ensure correct direction is stuck to
@@ -86,20 +97,26 @@ def main():
                     b.ensure_travel_left()
 
                 if b.get_rect().colliderect(player_1.get_rect()):
-                    rem.append(b)
+                    rem_b.append(b)
                     lives -= 1
-                elif b.get_rect().top > height:  # if did not collide with player, check if ready for locational despawn
-                    rem.append(b)
-                    bananas_dodged += 1
-                    if spawn_rate > 20:
-                        spawn_rate -= 2
+                else:
+                    ind = b.get_rect().collidelist([x.get_rect() for x in projectiles])
+                    if ind != -1:
+                        rem_b.append(b)
+                        del projectiles[ind]
+                    elif b.get_rect().top > height:  # if didn't collide with player, check for locational despawn
+                        rem_b.append(b)
+                        bananas_dodged += 1
+                        if spawn_rate > 15:
+                            spawn_rate -= 2
 
-            bananas = [b for b in bananas if b not in rem]
+            bananas = [b for b in bananas if b not in rem_b]
 
             # update labels ready for drawing
             labels[0].set_text("{} frames until banana (every {} frames)".format(frames_until_spawn, spawn_rate))
-            labels[1].set_text("{} bananas dodged".format(bananas_dodged))
-            labels[2].set_text("{} lives".format(lives))
+            labels[1].set_text("{} frames until shooting is available".format(frames_until_can_shoot))
+            labels[2].set_text("{} bananas dodged".format(bananas_dodged))
+            labels[3].set_text("{} lives".format(lives))
 
             # draw on background
             background.fill((250, 250, 250))
@@ -117,6 +134,8 @@ def main():
                 if frames_until_bob <= 1:
                     b.rotate_tick()
                 screen.blit(b.get_img(), b.get_rect())
+            for p in projectiles:
+                screen.blit(p.get_img(), p.get_rect())
 
             # animate bobbing
             frames_until_bob -= 1
