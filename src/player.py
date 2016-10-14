@@ -3,6 +3,7 @@ import pygame, math
 
 class Player:
     def __init__(self, img, speed, screen_bounds):
+        w, h = screen_bounds
         self.img = img
         self.rect = img.get_rect()
         self.speed = speed

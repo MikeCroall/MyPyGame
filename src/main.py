@@ -13,18 +13,20 @@ def main():
     pygame.init()
 
     paused = False
-    size = width, height = 960, 540
+    scale = 1
+    size = width, height = scale * 960, scale * 540
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Banana dodge v2')
     spawn_rate, frames_until_spawn = 100, 1
     bananas_dodged, lives = 0, 3
     bob_rate, frames_until_bob = 7, 7
+    shooting_cool_down, frames_until_can_shoot = 30, 30
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
     background.fill((250, 250, 250))
 
-    player_1 = Player(pygame.image.load("../img/nyan-balloon.png"), [2, 0], size)
+    player_1 = Player(pygame.image.load("../img/nyan-balloon.png"), [int(width / 480), 0], size)
 
     labels = [
         Label("0 frames until banana"),
@@ -56,6 +58,7 @@ def main():
 
         if not paused:
             frames_until_spawn -= 1
+            if frames_until_can_shoot > 0: frames_until_can_shoot -= 1
             if frames_until_spawn <= 0:
                 spawn_banana()
                 frames_until_spawn = spawn_rate
@@ -68,11 +71,16 @@ def main():
             if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
                 if player_1.get_rect().right < width:
                     player_1.go_right()
+            if keys[pygame.K_SPACE]:
+                if frames_until_can_shoot <= 0:
+                    frames_until_can_shoot = shooting_cool_down
+                    print("Player shooting")
+                    pass  # todo shoot projectile up from player
 
             rem = []
             for b in bananas:
                 b.move_at_speed()
-                if b.get_rect().left < 0:  # separated to ensure speed doesn't alternate +ve -ve and thus not really change
+                if b.get_rect().left < 0:  # separated to ensure correct direction is stuck to
                     b.ensure_travel_right()
                 elif b.get_rect().right > width:
                     b.ensure_travel_left()
