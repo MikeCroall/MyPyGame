@@ -14,22 +14,22 @@ def main():
     pygame.init()
 
     paused = False
-    scale = 1
-    size = width, height = scale * 960, scale * 540
-    screen = pygame.display.set_mode(size)
+    screen_scale = 1
+    screen_size = screen_width, screen_height = screen_scale * 960, screen_scale * 540
+    screen = pygame.display.set_mode(screen_size)
     pygame.display.set_caption('Banana dodge v2')
-    spawn_rate, frames_until_spawn = 100, 1
+    banana_spawn_rate, frames_until_banana_spawn = 100, 1
     bananas_dodged, bananas_shot, lives = 0, 0, 3
-    bob_rate, frames_until_bob = 7, 7
+    player_bob_rate, frames_until_player_bob = 7, 7
     shooting_cool_down, frames_until_can_shoot = 75, 30
-    projectile_speed = [0, -4 * int(height / 480)]
+    projectile_speed = [0, -4 * int(screen_height / 480)]
     background_colour = (250, 250, 250)
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
     background.fill(background_colour)
 
-    player_1 = Player(pygame.image.load("../img/nyan-balloon.png"), [int(width / 480), 0], size)
+    player_1 = Player(pygame.image.load("../img/nyan-balloon.png"), [int(screen_width / 480), 0], screen_size)
 
     labels = [
         Label("0 frames until banana"),
@@ -50,16 +50,42 @@ def main():
         speed = [random.choice([0, 0, 0, 0, 0, -1, -1, 1, 1, -2, 2]), 2]
         if random.random() < 0.05:
             img = pygame.image.load("../img/life-banana.bmp")
-            bananas.append(Banana(True, img, int(random.random() * width), 0, speed))
+            bananas.append(Banana(True, img, int(random.random() * screen_width), 0, speed))
         else:
             img = pygame.image.load("../img/banana.bmp")
-            bananas.append(Banana(False, img, int(random.random() * width), 0, speed))
+            bananas.append(Banana(False, img, int(random.random() * screen_width), 0, speed))
 
     def shoot_projectile_from_player(player_1):
         img = pygame.image.load("../img/projectile.png")
         projectiles.append(Projectile(img, projectile_speed, player_1.get_rect()))
 
-    while lives > 0:
+    def background_fade():
+        background_recover_rate = 2
+        r, g, b = background_colour
+        if background_colour != (250, 250, 250):
+            if r < 250:
+                r += background_recover_rate
+            elif r > 250:
+                r -= background_recover_rate
+            if g < 250:
+                g += background_recover_rate
+            elif g > 250:
+                g -= background_recover_rate
+            if b < 250:
+                b += background_recover_rate
+            elif b > 250:
+                b -= background_recover_rate
+        return r, g, b
+
+    def update_labels():
+        # update labels ready for drawing
+        labels[0].set_text("{} frames until banana (every {} frames)".format(frames_until_banana_spawn, banana_spawn_rate))
+        labels[1].set_text("{} frames until shooting is available".format(frames_until_can_shoot))
+        labels[2].set_text("{} bananas dodged".format(bananas_dodged))
+        labels[3].set_text("{} bananas shot".format(bananas_shot))
+        labels[4].set_text("{} lives".format(lives))
+
+    def process_events(paused):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -69,14 +95,18 @@ def main():
                     if paused:
                         screen.blit(pause_label, pause_label_rect)
                         pygame.display.flip()
+        return paused
+
+    while lives > 0:
+        paused = process_events(paused)
 
         if not paused:
-            frames_until_spawn -= 1
+            frames_until_banana_spawn -= 1
             if frames_until_can_shoot > 0:
                 frames_until_can_shoot -= 1
-            if frames_until_spawn <= 0:
+            if frames_until_banana_spawn <= 0:
                 spawn_banana()
-                frames_until_spawn = spawn_rate
+                frames_until_banana_spawn = banana_spawn_rate
 
             # player movement
             keys = pygame.key.get_pressed()  # checking pressed keys
@@ -84,7 +114,7 @@ def main():
                 if player_1.get_rect().left > 0:
                     player_1.go_left()
             if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-                if player_1.get_rect().right < width:
+                if player_1.get_rect().right < screen_width:
                     player_1.go_right()
             if keys[pygame.K_SPACE]:
                 if frames_until_can_shoot <= 0:
@@ -99,7 +129,7 @@ def main():
                 b.move_at_speed()
                 if b.get_rect().left < 0:  # separated to ensure correct direction is stuck to
                     b.ensure_travel_right()
-                elif b.get_rect().right > width:
+                elif b.get_rect().right > screen_width:
                     b.ensure_travel_left()
 
                 if b.get_rect().colliderect(player_1.get_rect()):
@@ -122,38 +152,18 @@ def main():
                             bananas_shot += 1  # life-bananas don't count towards this
                         rem_b.append(b)
                         del projectiles[ind]
-                    elif b.get_rect().top > height:  # if didn't collide with player, check for locational despawn
+                    elif b.get_rect().top > screen_height:  # if didn't collide with player, check for locational despawn
                         rem_b.append(b)
                         bananas_dodged += 1
-                        if spawn_rate > 15:
-                            spawn_rate -= 2
+                        if banana_spawn_rate > 15:
+                            banana_spawn_rate -= 2
 
             bananas = [b for b in bananas if b not in rem_b]
 
-            # update labels ready for drawing
-            labels[0].set_text("{} frames until banana (every {} frames)".format(frames_until_spawn, spawn_rate))
-            labels[1].set_text("{} frames until shooting is available".format(frames_until_can_shoot))
-            labels[2].set_text("{} bananas dodged".format(bananas_dodged))
-            labels[3].set_text("{} bananas shot".format(bananas_shot))
-            labels[4].set_text("{} lives".format(lives))
+            update_labels()
 
             # draw on background
-            background_recover_rate = 2
-            if background_colour != (250, 250, 250):
-                r, g, b = background_colour
-                if r < 250:
-                    r += background_recover_rate
-                elif r > 250:
-                    r -= background_recover_rate
-                if g < 250:
-                    g += background_recover_rate
-                elif g > 250:
-                    g -= background_recover_rate
-                if b < 250:
-                    b += background_recover_rate
-                elif b > 250:
-                    b -= background_recover_rate
-                background_colour = (r, g, b)
+            background_colour = background_fade()
             background.fill(background_colour)
             top = 8
             for l in labels:
@@ -172,10 +182,10 @@ def main():
                 screen.blit(p.get_img(), p.get_rect())
 
             # animate bobbing
-            frames_until_bob -= 1
-            if frames_until_bob <= 0:
+            frames_until_player_bob -= 1
+            if frames_until_player_bob <= 0:
                 player_1.balloon_bob()
-                frames_until_bob = bob_rate
+                frames_until_player_bob = player_bob_rate
             screen.blit(player_1.get_img(), player_1.get_rect())
 
             pygame.display.flip()
