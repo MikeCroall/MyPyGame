@@ -21,8 +21,9 @@ def main():
     spawn_rate, frames_until_spawn = 100, 1
     bananas_dodged, lives = 0, 3
     bob_rate, frames_until_bob = 7, 7
+    rotate_rate, frames_until_rotate = 1, 1
     shooting_cool_down, frames_until_can_shoot = 75, 30
-    projectile_speed = [0, -2 * int(height / 480)]
+    projectile_speed = [0, -4 * int(height / 480)]
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -131,8 +132,7 @@ def main():
             screen.blit(background, (0, 0))
             for b in bananas:
                 # animate spinning
-                if frames_until_bob <= 1:
-                    b.rotate_tick()
+                b.rotate_tick()
                 screen.blit(b.get_img(), b.get_rect())
             for p in projectiles:
                 screen.blit(p.get_img(), p.get_rect())
@@ -184,3 +184,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt as ex:
         print("Please exit using the X button, or Esc on the death screen next time!")
     print("See you again soon!")
+
+# todo blue bananas that give a life

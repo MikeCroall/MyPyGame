@@ -5,10 +5,12 @@ import random
 class Banana:
     def __init__(self, img, x, y, speed):
         self.img = img
+        self.original_img = img
         self.rect = img.get_rect()
         self.set_center_pos(x, y)
         self.speed = speed
         self.rotate_direction = random.choice([1, -1])
+        self.rotation = 0
 
     def get_img(self):
         return self.img
@@ -34,7 +36,8 @@ class Banana:
         return self.rect
 
     def rotate_tick(self):
-        self.img = pygame.transform.rotate(self.img, self.rotate_direction * 90)  # not 90n causes bad distortion
+        self.rotation = (self.rotation + 5) % 360  # not 90n causes bad distortion
+        self.img = pygame.transform.rotate(self.original_img, self.rotate_direction * self.rotation)
         self.rect = self.img.get_rect(center=self.rect.center)
 
     def __str__(self):
