@@ -19,9 +19,8 @@ def main():
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Banana dodge v2')
     spawn_rate, frames_until_spawn = 100, 1
-    bananas_dodged, lives = 0, 3
+    bananas_dodged, bananas_shot, lives = 0, 0, 3
     bob_rate, frames_until_bob = 7, 7
-    rotate_rate, frames_until_rotate = 1, 1
     shooting_cool_down, frames_until_can_shoot = 75, 30
     projectile_speed = [0, -4 * int(height / 480)]
 
@@ -35,6 +34,7 @@ def main():
         Label("0 frames until banana"),
         Label("0 frames until shooting is available"),
         Label("0 bananas dodged"),
+        Label("0 bananas shot"),
         Label("3 lives")
     ]  # note: NOT a dictionary, to maintain ordering
     pause_label = pygame.font.Font(None, 50).render("Paused", 1, (10, 10, 10))
@@ -114,6 +114,8 @@ def main():
                         if b.get_gives_life():
                             if lives < 10:
                                 lives += 1
+                        else:
+                            bananas_shot += 1  # life-bananas don't count towards this
                         rem_b.append(b)
                         del projectiles[ind]
                     elif b.get_rect().top > height:  # if didn't collide with player, check for locational despawn
@@ -128,7 +130,8 @@ def main():
             labels[0].set_text("{} frames until banana (every {} frames)".format(frames_until_spawn, spawn_rate))
             labels[1].set_text("{} frames until shooting is available".format(frames_until_can_shoot))
             labels[2].set_text("{} bananas dodged".format(bananas_dodged))
-            labels[3].set_text("{} lives".format(lives))
+            labels[3].set_text("{} bananas shot".format(bananas_shot))
+            labels[4].set_text("{} lives".format(lives))
 
             # draw on background
             background.fill((250, 250, 250))
@@ -163,8 +166,8 @@ def main():
     print("Game over!\n{} bananas dodged successfully".format(bananas_dodged))
 
     game_over_label = pygame.font.Font(None, 40).render("Game over!", 1, (10, 10, 10))
-    bananas_dodged_label = pygame.font.Font(None, 36).render("You dodged {} bananas!".format(bananas_dodged), 1,
-                                                             (10, 10, 10))
+    bananas_dodged_label = pygame.font.Font(None, 36).render(
+        "You dodged {} bananas, and shot {}!".format(bananas_dodged, bananas_shot), 1, (10, 10, 10))
     escape_exit_label = pygame.font.Font(None, 25).render("Press Esc to exit", 1, (10, 10, 10))
     gol_rect = game_over_label.get_rect()
     bdl_rect = bananas_dodged_label.get_rect()
