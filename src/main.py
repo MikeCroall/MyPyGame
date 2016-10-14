@@ -21,7 +21,7 @@ def main():
     spawn_rate, frames_until_spawn = 100, 1
     bananas_dodged, lives = 0, 3
     bob_rate, frames_until_bob = 7, 7
-    shooting_cool_down, frames_until_can_shoot = 80, 30
+    shooting_cool_down, frames_until_can_shoot = 75, 30
     projectile_speed = [0, -2 * int(height / 480)]
 
     background = pygame.Surface(screen.get_size())
@@ -46,11 +46,11 @@ def main():
 
     def spawn_banana():
         img = pygame.image.load("../img/banana.bmp")
-        speed = [random.choice([0, 0, 0, -1, 1]), 2]
+        speed = [random.choice([0, 0, 0, 0, 0, -1, -1, 1, 1, -2, 2]), 2]
         bananas.append(Banana(img, int(random.random() * width), 0, speed))
 
     def shoot_projectile_from_player(player_1):
-        img = pygame.image.load("../img/projectile.png")  # todo replace sprite
+        img = pygame.image.load("../img/projectile.png")
         projectiles.append(Projectile(img, projectile_speed, player_1.get_rect()))
 
     while lives > 0:
