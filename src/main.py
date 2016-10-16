@@ -20,7 +20,7 @@ def main():
     pygame.display.set_caption('Banana dodge v2')
     banana_spawn_rate, frames_until_banana_spawn = 100, 1
     bananas_dodged, bananas_shot, lives = 0, 0, 3
-    player_bob_rate, frames_until_player_bob = 7, 7
+    player_bob_rate = 3
     shooting_cool_down, frames_until_can_shoot = 75, 30
     projectile_speed = [0, -4 * int(screen_height / 480)]
     background_colour = (250, 250, 250)
@@ -55,9 +55,9 @@ def main():
             img = pygame.image.load("../img/banana.bmp")
             bananas.append(Banana(False, img, int(random.random() * screen_width), 0, speed))
 
-    def shoot_projectile_from_player(player_1):
+    def shoot_projectile_from_player(player):
         img = pygame.image.load("../img/projectile.png")
-        projectiles.append(Projectile(img, projectile_speed, player_1.get_rect()))
+        projectiles.append(Projectile(img, projectile_speed, player.get_rect()))
 
     def background_fade():
         background_recover_rate = 2
@@ -85,17 +85,37 @@ def main():
         labels[3].set_text("{} bananas shot".format(bananas_shot))
         labels[4].set_text("{} lives".format(lives))
 
-    def process_events(paused):
+    def process_events(p_paused):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    paused = not paused
-                    if paused:
+                    p_paused = not p_paused
+                    if p_paused:
                         screen.blit(pause_label, pause_label_rect)
                         pygame.display.flip()
-        return paused
+        return p_paused
+
+    def show_death_messages(p_background, p_bananas_dodged, p_bananas_shot, p_screen):
+        print("Game over!\n{} bananas dodged successfully".format(p_bananas_dodged))
+        game_over_label = pygame.font.Font(None, 40).render("Game over!", 1, (10, 10, 10))
+        bananas_dodged_label = pygame.font.Font(None, 36).render(
+            "You dodged {} bananas, and shot {}!".format(p_bananas_dodged, p_bananas_shot), 1, (10, 10, 10))
+        escape_exit_label = pygame.font.Font(None, 25).render("Press Esc to exit", 1, (10, 10, 10))
+        gol_rect = game_over_label.get_rect()
+        bdl_rect = bananas_dodged_label.get_rect()
+        eel_rect = escape_exit_label.get_rect()
+        gol_rect.centerx = p_background.get_rect().centerx
+        bdl_rect.centerx = p_background.get_rect().centerx
+        eel_rect.centerx = p_background.get_rect().centerx
+        gol_rect.bottom = p_background.get_rect().centery - gol_rect.height - 10
+        bdl_rect.centery = p_background.get_rect().centery
+        eel_rect.top = p_background.get_rect().centery + gol_rect.height + 10
+        p_screen.blit(game_over_label, gol_rect)
+        p_screen.blit(bananas_dodged_label, bdl_rect)
+        p_screen.blit(escape_exit_label, eel_rect)
+        pygame.display.flip()
 
     while lives > 0:
         paused = process_events(paused)
@@ -152,7 +172,7 @@ def main():
                             bananas_shot += 1  # life-bananas don't count towards this
                         rem_b.append(b)
                         del projectiles[ind]
-                    elif b.get_rect().top > screen_height:  # if didn't collide with player, check for locational despawn
+                    elif b.get_rect().top > screen_height:  # if not collided with player, check for locational despawn
                         rem_b.append(b)
                         bananas_dodged += 1
                         if banana_spawn_rate > 15:
@@ -182,10 +202,7 @@ def main():
                 screen.blit(p.get_img(), p.get_rect())
 
             # animate bobbing
-            frames_until_player_bob -= 1
-            if frames_until_player_bob <= 0:
-                player_1.balloon_bob()
-                frames_until_player_bob = player_bob_rate
+            player_1.balloon_bob(player_bob_rate)
             screen.blit(player_1.get_img(), player_1.get_rect())
 
             pygame.display.flip()
@@ -193,27 +210,7 @@ def main():
         else:
             time.sleep(0.2)  # paused
 
-    print("Game over!\n{} bananas dodged successfully".format(bananas_dodged))
-
-    game_over_label = pygame.font.Font(None, 40).render("Game over!", 1, (10, 10, 10))
-    bananas_dodged_label = pygame.font.Font(None, 36).render(
-        "You dodged {} bananas, and shot {}!".format(bananas_dodged, bananas_shot), 1, (10, 10, 10))
-    escape_exit_label = pygame.font.Font(None, 25).render("Press Esc to exit", 1, (10, 10, 10))
-    gol_rect = game_over_label.get_rect()
-    bdl_rect = bananas_dodged_label.get_rect()
-    eel_rect = escape_exit_label.get_rect()
-    gol_rect.centerx = background.get_rect().centerx
-    bdl_rect.centerx = background.get_rect().centerx
-    eel_rect.centerx = background.get_rect().centerx
-    gol_rect.bottom = background.get_rect().centery - gol_rect.height - 10
-    bdl_rect.centery = background.get_rect().centery
-    eel_rect.top = background.get_rect().centery + gol_rect.height + 10
-
-    screen.blit(game_over_label, gol_rect)
-    screen.blit(bananas_dodged_label, bdl_rect)
-    screen.blit(escape_exit_label, eel_rect)
-
-    pygame.display.flip()
+    show_death_messages(background, bananas_dodged, bananas_shot, screen)
 
     escaped = False
     while not escaped:

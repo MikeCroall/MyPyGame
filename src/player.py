@@ -3,15 +3,15 @@ import pygame
 
 
 class Player:
+    MAX_BOB_HEIGHT = 10
+
     def __init__(self, img, speed, screen_bounds):
-        w, h = screen_bounds
         self.img = img
         self.rect = img.get_rect()
         self.speed = speed
         self.usual_bottom = -1
         self.position_middle_bottom(screen_bounds)
-        self.balloon_bob_height = 0
-        self.balloon_bob_mode = "down"
+        self.balloon_bob_sin_angle = 0
         self.travelling = "right"
 
     def get_img(self):
@@ -41,15 +41,7 @@ class Player:
         self.usual_bottom = self.rect.bottom
         self.rect.centerx = int(width / 2)
 
-    def balloon_bob(self):
-        if self.balloon_bob_mode == "down":
-            if self.balloon_bob_height < 10:
-                self.balloon_bob_height += 1
-            else:
-                self.balloon_bob_mode = "up"
-        else:
-            if self.balloon_bob_height > -10:
-                self.balloon_bob_height -= 1
-            else:
-                self.balloon_bob_mode = "down"
-        self.rect.bottom = self.usual_bottom + self.balloon_bob_height
+    def balloon_bob(self, bob_rate_as_angle):
+        self.balloon_bob_sin_angle = (self.balloon_bob_sin_angle + bob_rate_as_angle) % 360
+        self.rect.bottom = self.usual_bottom + (
+            math.sin(math.radians(self.balloon_bob_sin_angle)) * Player.MAX_BOB_HEIGHT)
